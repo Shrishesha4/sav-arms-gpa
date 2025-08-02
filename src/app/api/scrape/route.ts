@@ -1,11 +1,20 @@
 import { NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
+import { ScrapedCourse } from './types';
 
-export interface ScrapedCourse {
-    courseCode: string;
-    courseName: string;
-    grade: string;
-    monthYear: string;
+async function getLoginTokens(cookie?: string): Promise<{ viewState: string | undefined, eventValidation: string | undefined, cookie: string | undefined }> {
+    const loginUrl = 'https://arms.sse.saveetha.com/StudentPortal/Login.aspx';
+    const res = await fetch(loginUrl, {
+        headers: {
+            'Cookie': cookie || ''
+        }
+    });
+    const html = await res.text();
+    const $ = cheerio.load(html);
+    const viewState = $('input[name="__VIEWSTATE"]').val();
+    const eventValidation = $('input[name="__EVENTVALIDATION"]').val();
+    const newCookie = res.headers.get('set-cookie') || cookie;
+    return { viewState, eventValidation, cookie: newCookie };
 }
 
 export async function POST(request: Request) {
@@ -17,20 +26,20 @@ export async function POST(request: Request) {
         }
 
         const loginUrl = 'https://arms.sse.saveetha.com/StudentPortal/Login.aspx';
+        const dashboardUrl = 'https://arms.sse.saveetha.com/StudentPortal/DashBoard.aspx';
         const myCourseUrl = 'https://arms.sse.saveetha.com/StudentPortal/MyCourse.aspx';
 
-        // Step 1: Fetch the login page to get viewstate and other form data
-        const initialRes = await fetch(loginUrl);
-        const initialText = await initialRes.text();
-        const $initial = cheerio.load(initialText);
+        // Step 1: Initial request to get session cookie and tokens
+        const { viewState: initialViewState, eventValidation: initialEventValidation, cookie: initialCookie } = await getLoginTokens();
+        
+        if (!initialViewState || !initialEventValidation || !initialCookie) {
+            return NextResponse.json({ error: 'Failed to retrieve login tokens from the portal.' }, { status: 500 });
+        }
 
-        const viewState = $initial('input[name="__VIEWSTATE"]').val();
-        const eventValidation = $initial('input[name="__EVENTVALIDATION"]').val();
-
-        // Step 2: Perform the login
+        // Step 2: Perform login
         const loginFormData = new URLSearchParams();
-        loginFormData.append('__VIEWSTATE', viewState || '');
-        loginFormData.append('__EVENTVALIDATION', eventValidation || '');
+        loginFormData.append('__VIEWSTATE', initialViewState);
+        loginFormData.append('__EVENTVALIDATION', initialEventValidation);
         loginFormData.append('txtUserName', username);
         loginFormData.append('txtPassword', password);
         loginFormData.append('btnSubmit', 'Sign In');
@@ -39,29 +48,28 @@ export async function POST(request: Request) {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded',
-                'Cookie': initialRes.headers.get('set-cookie') || '',
-                'Referer': loginUrl
+                'Cookie': initialCookie,
+                'Referer': loginUrl,
             },
             body: loginFormData.toString(),
-            redirect: 'manual' // We need to handle redirects manually to capture cookies
+            redirect: 'follow' // Follow redirects to get the final cookie
         });
 
-        // Check if login was successful by looking for a redirect to the dashboard
-        if (loginRes.status !== 302 || !loginRes.headers.get('location')?.includes('DashBoard')) {
-            return NextResponse.json({ error: 'Invalid credentials or login failed' }, { status: 401 });
-        }
-
-        const sessionCookie = loginRes.headers.get('set-cookie');
-
-        if (!sessionCookie) {
-            return NextResponse.json({ error: 'Failed to establish a session' }, { status: 500 });
+        // The final URL after redirects should be the dashboard
+        if (!loginRes.url.includes('DashBoard.aspx')) {
+             return NextResponse.json({ error: 'Invalid credentials or login failed. Please double-check your username and password.' }, { status: 401 });
         }
         
-        // Step 3: Fetch the MyCourse page with the session cookie
+        const sessionCookie = loginRes.headers.get('set-cookie') || initialCookie;
+        if (!sessionCookie) {
+            return NextResponse.json({ error: 'Failed to establish a session after login.' }, { status: 500 });
+        }
+        
+        // Step 3: Fetch the MyCourse page
         const myCourseRes = await fetch(myCourseUrl, {
             headers: {
                 'Cookie': sessionCookie,
-                'Referer': loginUrl
+                'Referer': dashboardUrl
             }
         });
 
@@ -71,27 +79,24 @@ export async function POST(request: Request) {
 
         const myCourseHtml = await myCourseRes.text();
 
-        // Step 4: Parse the HTML and extract course data
+        // Step 4: Parse HTML and extract data
         const $ = cheerio.load(myCourseHtml);
         const courses: ScrapedCourse[] = [];
 
-        // This selector targets the main table with course data
         $('table.table.table-striped.table-bordered > tbody > tr').each((_i, row) => {
             const columns = $(row).find('td');
             if (columns.length >= 6) {
                 const courseCode = $(columns[1]).text().trim();
                 const courseName = $(columns[2]).text().trim();
-                let grade = $(columns[3]).text().trim();
-                const status = $(columns[4]).text().trim();
+                let grade = $(columns[3]).text().trim().toUpperCase();
+                const status = $(columns[4]).text().trim().toUpperCase();
                 const monthYear = $(columns[5]).text().trim();
 
-                if (status.toUpperCase() === 'FAIL') {
+                if (status === 'FAIL') {
                     grade = 'F';
-                } else if (status.toUpperCase() === 'PASS') {
-                    // Grade is already S, A, B, etc.
                 }
 
-                if(courseCode && courseName){
+                if (courseCode && courseName && grade && monthYear) {
                     courses.push({
                         courseCode,
                         courseName,
@@ -110,6 +115,6 @@ export async function POST(request: Request) {
 
     } catch (error) {
         console.error('Scraping error:', error);
-        return NextResponse.json({ error: 'An internal server error occurred' }, { status: 500 });
+        return NextResponse.json({ error: 'An internal server error occurred during scraping.' }, { status: 500 });
     }
 }
