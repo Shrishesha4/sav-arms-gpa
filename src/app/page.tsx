@@ -11,10 +11,13 @@ import PortalLogin from '@/components/PortalLogin';
 import { useToast } from '@/hooks/use-toast';
 import type { ScrapedCourse } from './api/scrape/types';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Globe, Upload } from 'lucide-react';
 
+// A simple client-side unique ID generator.
 let courseIdCounter = 0;
+const generateId = () => `course-${Date.now()}-${courseIdCounter++}`;
+
 
 export default function Home() {
   const [courses, setCourses] = useState<Course[]>([]);
@@ -26,7 +29,7 @@ export default function Home() {
       const validGrades: Grade[] = ['S', 'A', 'B', 'C', 'D', 'F'];
       
       return {
-        id: `course-${courseIdCounter++}`,
+        id: generateId(),
         code: item.courseCode,
         name: item.courseName,
         credits: item.credits,
@@ -81,7 +84,7 @@ export default function Home() {
         const actualYear = yearMatch ? parseInt(yearMatch[1]) : new Date().getFullYear();
         
         return {
-          id: `course-${courseIdCounter++}`,
+          id: generateId(),
           code: item.courseCode,
           name: item.courseName,
           credits: 4,
@@ -99,9 +102,9 @@ export default function Home() {
   
   const addYear = () => {
     const existingYears = [...new Set(courses.map(c => c.year))];
-    const newYearNumber = existingYears.length > 0 ? Math.max(...existingYears) + 1 : 1;
+    const newYearNumber = existingYears.length > 0 ? Math.max(...existingYears) + 1 : new Date().getFullYear();
     const newCourse: Course = {
-      id: `course-${courseIdCounter++}`,
+      id: generateId(),
       code: '',
       name: '',
       credits: 0,
@@ -113,7 +116,7 @@ export default function Home() {
   
   const addCourse = (year: number) => {
     const newCourse: Course = {
-      id: `course-${courseIdCounter++}`,
+      id: generateId(),
       code: '',
       name: '',
       credits: 0,
@@ -146,25 +149,23 @@ export default function Home() {
             <CardContent>
               <Tabs defaultValue="portal" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
-                  <TabsTrigger value="portal" className="flex items-center gap-2">
-                    <Globe className="h-4 w-4" />
+                  <TabsTrigger value="portal">
+                    <Globe className="mr-2 h-4 w-4" />
                     Portal Login
                   </TabsTrigger>
-                  <TabsTrigger value="upload" className="flex items-center gap-2">
-                    <Upload className="h-4 w-4" />
+                  <TabsTrigger value="upload">
+                    <Upload className="mr-2 h-4 w-4" />
                     Upload Screenshot
                   </TabsTrigger>
                 </TabsList>
                 
-                <div className="mt-6">
-                  <TabsContent value="portal" className="space-y-4">
-                    <PortalLogin onExtraction={handlePortalExtraction} />
-                  </TabsContent>
-                  
-                  <TabsContent value="upload" className="space-y-4">
-                    <TranscriptUploader onExtraction={handleAiExtraction} />
-                  </TabsContent>
-                </div>
+                <TabsContent value="portal" className="space-y-4">
+                  <PortalLogin onExtraction={handlePortalExtraction} />
+                </TabsContent>
+                
+                <TabsContent value="upload" className="space-y-4">
+                  <TranscriptUploader onExtraction={handleAiExtraction} />
+                </TabsContent>
               </Tabs>
             </CardContent>
           </Card>
