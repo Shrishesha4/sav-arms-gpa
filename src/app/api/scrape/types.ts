@@ -3,4 +3,6 @@ export interface ScrapedCourse {
     courseName: string;
     grade: string;
     monthYear: string;
+    status?: string;
+    credits?: number;
 }
