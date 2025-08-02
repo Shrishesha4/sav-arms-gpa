@@ -14,6 +14,8 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@radix-ui/react-tabs';
 import { Globe, Upload } from 'lucide-react';
 
+let courseIdCounter = 0;
+
 export default function Home() {
   const [courses, setCourses] = useState<Course[]>([]);
   const { toast } = useToast();
@@ -24,7 +26,7 @@ export default function Home() {
       const validGrades: Grade[] = ['S', 'A', 'B', 'C', 'D', 'F'];
       
       return {
-        id: crypto.randomUUID(),
+        id: `course-${courseIdCounter++}`,
         code: item.courseCode,
         name: item.courseName,
         credits: item.credits,
@@ -60,9 +62,6 @@ export default function Home() {
   
     // Get sorted years
     const sortedYears = Object.keys(yearGroups).map(Number).sort((a, b) => a - b);
-    
-    console.log('Extracted Years:', sortedYears);
-    console.log('Year Groups:', yearGroups);
   
     const newCourses: Course[] = extractedData
       .filter(item => {
@@ -82,7 +81,7 @@ export default function Home() {
         const actualYear = yearMatch ? parseInt(yearMatch[1]) : new Date().getFullYear();
         
         return {
-          id: crypto.randomUUID(),
+          id: `course-${courseIdCounter++}`,
           code: item.courseCode,
           name: item.courseName,
           credits: 4,
@@ -90,8 +89,6 @@ export default function Home() {
           year: actualYear, // Use actual year (2023, 2024, etc.)
         };
       });
-  
-    console.log('Processed Courses with Actual Years:', newCourses);
   
     setCourses(newCourses);
     toast({
@@ -104,7 +101,7 @@ export default function Home() {
     const existingYears = [...new Set(courses.map(c => c.year))];
     const newYearNumber = existingYears.length > 0 ? Math.max(...existingYears) + 1 : 1;
     const newCourse: Course = {
-      id: crypto.randomUUID(),
+      id: `course-${courseIdCounter++}`,
       code: '',
       name: '',
       credits: 0,
@@ -116,7 +113,7 @@ export default function Home() {
   
   const addCourse = (year: number) => {
     const newCourse: Course = {
-      id: crypto.randomUUID(),
+      id: `course-${courseIdCounter++}`,
       code: '',
       name: '',
       credits: 0,
