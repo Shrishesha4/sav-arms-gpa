@@ -1,11 +1,10 @@
 'use client';
 
 import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Lock, Loader2, AlertCircle } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
 import type { ScrapedCourse } from '@/app/api/scrape/route';
@@ -64,58 +63,45 @@ export default function PortalLogin({ onExtraction }: PortalLoginProps) {
 
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                    <Lock className="w-6 h-6 text-primary" />
-                    <span>Portal Login</span>
-                </CardTitle>
-                <CardDescription>
-                    For Saveetha University students. Automatically fetch your grades from ARMS.
-                </CardDescription>
-            </CardHeader>
-            <CardContent>
-                <div className="space-y-4">
-                    <div className="space-y-2">
-                        <Label htmlFor="username">Username</Label>
-                        <Input 
-                            id="username" 
-                            placeholder="Your ARMS username" 
-                            value={username}
-                            onChange={e => setUsername(e.target.value)}
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <Label htmlFor="password">Password</Label>
-                        <Input 
-                            id="password" 
-                            type="password" 
-                            placeholder="Your ARMS password" 
-                            value={password}
-                            onChange={e => setPassword(e.target.value)}
-                        />
-                    </div>
+        <div className="space-y-4">
+            <div className="space-y-2">
+                <Label htmlFor="username">Username</Label>
+                <Input 
+                    id="username" 
+                    placeholder="Your ARMS username" 
+                    value={username}
+                    onChange={e => setUsername(e.target.value)}
+                />
+            </div>
+            <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input 
+                    id="password" 
+                    type="password" 
+                    placeholder="Your ARMS password" 
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                />
+            </div>
 
-                    {error && (
-                        <Alert variant="destructive">
-                            <AlertCircle className="h-4 w-4" />
-                            <AlertTitle>Error</AlertTitle>
-                            <AlertDescription>{error}</AlertDescription>
-                        </Alert>
-                    )}
+            {error && (
+                <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Error</AlertTitle>
+                    <AlertDescription>{error}</AlertDescription>
+                </Alert>
+            )}
 
-                    <Button onClick={handleLogin} disabled={isLoading} className="w-full">
-                        {isLoading ? (
-                            <>
-                                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                                Logging in & Fetching...
-                            </>
-                        ) : (
-                            'Login & Fetch Grades'
-                        )}
-                    </Button>
-                </div>
-            </CardContent>
-        </Card>
+            <Button onClick={handleLogin} disabled={isLoading} className="w-full bg-primary hover:bg-primary/90">
+                {isLoading ? (
+                    <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Logging in & Fetching...
+                    </>
+                ) : (
+                    'Login & Fetch Grades'
+                )}
+            </Button>
+        </div>
     );
 }

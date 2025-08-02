@@ -3,7 +3,6 @@
 import { useState, useCallback } from 'react';
 import Image from 'next/image';
 import { useToast } from '@/hooks/use-toast';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { UploadCloud, FileImage, Loader2, AlertCircle } from 'lucide-react';
@@ -99,77 +98,66 @@ export default function TranscriptUploader({ onExtraction }: TranscriptUploaderP
   };
   
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <UploadCloud className="w-6 h-6 text-primary" />
-          <span>Upload Transcript (or)</span>
-        </CardTitle>
-        <CardDescription>
-          Drag & drop or select a screenshot of your academic transcript to automatically extract grades with AI.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div
-          onDrop={handleDrop}
-          onDragOver={handleDragOver}
-          onDragEnter={handleDragEnter}
-          onDragLeave={handleDragLeave}
-          className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors
-            ${isDragging ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}
-        >
-          <input
-            type="file"
-            id="file-upload"
-            className="hidden"
-            accept="image/*"
-            onChange={(e) => handleFileChange(e.target.files ? e.target.files[0] : null)}
-          />
-          {preview && file ? (
-             <div className="flex flex-col items-center gap-4">
-              <Image
-                src={preview}
-                alt="Transcript preview"
-                width={200}
-                height={200}
-                className="rounded-md object-contain max-h-48 w-auto"
-                data-ai-hint="transcript screenshot"
-              />
-               <p className="text-sm font-medium text-foreground flex items-center gap-2">
-                <FileImage className="w-4 h-4" />
-                {file.name}
-              </p>
-             </div>
-          ) : (
-            <div className="flex flex-col items-center gap-2 text-muted-foreground">
-              <UploadCloud className="w-12 h-12" />
-              <p>Drag & drop an image here, or</p>
-              <Button size="sm" onClick={() => document.getElementById('file-upload')?.click()}>
-                Browse File
-              </Button>
-            </div>
-          )}
-        </div>
-        
-        {error && (
-            <Alert variant="destructive" className="mt-4">
-                <AlertCircle className="h-4 w-4" />
-                <AlertTitle>Error</AlertTitle>
-                <AlertDescription>{error}</AlertDescription>
-            </Alert>
+    <div>
+      <div
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+        onDragEnter={handleDragEnter}
+        onDragLeave={handleDragLeave}
+        className={`border-2 border-dashed rounded-lg p-8 text-center transition-colors
+          ${isDragging ? 'border-primary bg-primary/10' : 'border-border hover:border-primary/50'}`}
+      >
+        <input
+          type="file"
+          id="file-upload"
+          className="hidden"
+          accept="image/*"
+          onChange={(e) => handleFileChange(e.target.files ? e.target.files[0] : null)}
+        />
+        {preview && file ? (
+           <div className="flex flex-col items-center gap-4">
+            <Image
+              src={preview}
+              alt="Transcript preview"
+              width={200}
+              height={200}
+              className="rounded-md object-contain max-h-48 w-auto"
+              data-ai-hint="transcript screenshot"
+            />
+             <p className="text-sm font-medium text-foreground flex items-center gap-2">
+              <FileImage className="w-4 h-4" />
+              {file.name}
+            </p>
+           </div>
+        ) : (
+          <div className="flex flex-col items-center gap-2 text-muted-foreground">
+            <UploadCloud className="w-12 h-12" />
+            <p>Drag & drop an image here, or</p>
+            <Button size="sm" onClick={() => document.getElementById('file-upload')?.click()}>
+              Browse File
+            </Button>
+          </div>
         )}
+      </div>
+      
+      {error && (
+          <Alert variant="destructive" className="mt-4">
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error</AlertTitle>
+              <AlertDescription>{error}</AlertDescription>
+          </Alert>
+      )}
 
-        <Button onClick={handleExtract} disabled={!file || isLoading} className="mt-4 w-full">
-          {isLoading ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Extracting Grades...
-            </>
-          ) : (
-            'Extract with AI'
-          )}
-        </Button>
-      </CardContent>
-    </Card>
+      <Button onClick={handleExtract} disabled={!file || isLoading} className="mt-4 w-full bg-primary hover:bg-primary/90">
+        {isLoading ? (
+          <>
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            Extracting Grades...
+          </>
+        ) : (
+          'Extract with AI'
+        )}
+      </Button>
+    </div>
   );
 }

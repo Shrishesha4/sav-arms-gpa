@@ -135,62 +135,54 @@ export default function Home() {
   };
 
   return (
-    <main className="container mx-auto p-4 md:p-8">
+    <main className="container mx-auto p-4 md:p-8 dark">
       <Header />
-
-      <div className="lg:col-span-2 flex flex-col gap-8">
-        <Card>
-          <CardHeader>
-            <CardTitle>Add Your Courses</CardTitle>
-            <CardDescription>
-              Import your academic data using one of the methods below
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Tabs defaultValue="portal" className="w-full">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="portal" className="flex items-center gap-2">
-                  <Globe className="h-4 w-4" />
-                  Portal Login
-                </TabsTrigger>
-                <TabsTrigger value="upload" className="flex items-center gap-2">
-                  <Upload className="h-4 w-4" />
-                  Upload Screenshot
-                </TabsTrigger>
-              </TabsList>
-              
-              <div className="mt-6">
-                <TabsContent value="portal" className="space-y-4">
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-semibold">Login to Saveetha Portal</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Automatically fetch your completed courses from the university portal
-                    </p>
-                  </div>
-                  <PortalLogin onExtraction={handlePortalExtraction} />
-                </TabsContent>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+        <div className="lg:col-span-1 flex flex-col gap-8">
+          <Card>
+            <CardHeader>
+              <CardTitle>Add Your Courses</CardTitle>
+              <CardDescription>
+                Import your academic data using one of the methods below
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <Tabs defaultValue="portal" className="w-full">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="portal" className="flex items-center gap-2">
+                    <Globe className="h-4 w-4" />
+                    Portal Login
+                  </TabsTrigger>
+                  <TabsTrigger value="upload" className="flex items-center gap-2">
+                    <Upload className="h-4 w-4" />
+                    Upload Screenshot
+                  </TabsTrigger>
+                </TabsList>
                 
-                <TabsContent value="upload" className="space-y-4">
-                  <div className="space-y-2">
-                    <h3 className="text-lg font-semibold">Upload Grade Screenshot</h3>
-                    <p className="text-sm text-muted-foreground">
-                      Use AI to extract course data from your transcript or grade screenshot
-                    </p>
-                  </div>
-                  <TranscriptUploader onExtraction={handleAiExtraction} />
-                </TabsContent>
-              </div>
-            </Tabs>
-          </CardContent>
-        </Card>
+                <div className="mt-6">
+                  <TabsContent value="portal" className="space-y-4">
+                    <PortalLogin onExtraction={handlePortalExtraction} />
+                  </TabsContent>
+                  
+                  <TabsContent value="upload" className="space-y-4">
+                    <TranscriptUploader onExtraction={handleAiExtraction} />
+                  </TabsContent>
+                </div>
+              </Tabs>
+            </CardContent>
+          </Card>
+          <ResultsDashboard courses={courses} />
+        </div>
         
-        <CourseManager 
-          courses={courses}
-          onAddCourse={addCourse}
-          onUpdateCourse={updateCourse}
-          onRemoveCourse={removeCourse}
-          onAddYear={addYear}
-        />
+        <div className="lg:col-span-2">
+          <CourseManager 
+            courses={courses}
+            onAddCourse={addCourse}
+            onUpdateCourse={updateCourse}
+            onRemoveCourse={removeCourse}
+            onAddYear={addYear}
+          />
+        </div>
       </div>
     </main>
   );
