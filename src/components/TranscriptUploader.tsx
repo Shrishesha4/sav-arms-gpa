@@ -11,10 +11,9 @@ import { extractGradesFromTranscript, ExtractGradesFromTranscriptOutput } from '
 
 interface TranscriptUploaderProps {
   onExtraction: (data: ExtractGradesFromTranscriptOutput) => void;
-  apiKey: string | null;
 }
 
-export default function TranscriptUploader({ onExtraction, apiKey }: TranscriptUploaderProps) {
+export default function TranscriptUploader({ onExtraction }: TranscriptUploaderProps) {
   const [file, setFile] = useState<File | null>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -74,16 +73,7 @@ export default function TranscriptUploader({ onExtraction, apiKey }: TranscriptU
       setError('Please select a file first.');
       return;
     }
-    if (!apiKey) {
-      setError('Please set your Gemini API key before extracting.');
-      toast({
-        title: 'API Key Missing',
-        description: 'You need to save your Gemini API key to use this feature.',
-        variant: 'destructive',
-      });
-      return;
-    }
-
+    
     setIsLoading(true);
     setError(null);
 
@@ -113,10 +103,10 @@ export default function TranscriptUploader({ onExtraction, apiKey }: TranscriptU
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <UploadCloud className="w-6 h-6 text-primary" />
-          <span>Upload Transcript</span>
+          <span>Upload Transcript (or)</span>
         </CardTitle>
         <CardDescription>
-          Drag & drop or select a screenshot of your academic transcript to automatically extract grades.
+          Drag & drop or select a screenshot of your academic transcript to automatically extract grades with AI.
         </CardDescription>
       </CardHeader>
       <CardContent>
