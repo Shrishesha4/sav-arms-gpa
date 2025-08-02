@@ -14,7 +14,6 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/com
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Globe, Upload } from 'lucide-react';
 
-// A simple client-side unique ID generator.
 let courseIdCounter = 0;
 const generateId = () => `course-${Date.now()}-${courseIdCounter++}`;
 
@@ -34,7 +33,7 @@ export default function Home() {
         name: item.courseName,
         credits: item.credits,
         grade: validGrades.includes(grade) ? grade : 'NA',
-        year: 1, // Default to year 1, user can change it
+        year: new Date().getFullYear(),
       };
     });
 
@@ -46,12 +45,10 @@ export default function Home() {
   };
 
   const handlePortalExtraction = (extractedData: ScrapedCourse[]) => {
-    // Extract actual years from monthYear strings and group courses
     const yearGroups: { [key: number]: ScrapedCourse[] } = {};
     
     extractedData.forEach(course => {
       if (course.monthYear && course.monthYear.trim() !== '') {
-        // Extract year from monthYear string (e.g., "June 2023", "2023-2024", etc.)
         const yearMatch = course.monthYear.match(/\b(20\d{2})\b/);
         if (yearMatch) {
           const year = parseInt(yearMatch[1]);
@@ -63,7 +60,6 @@ export default function Home() {
       }
     });
   
-    // Get sorted years
     const sortedYears = Object.keys(yearGroups).map(Number).sort((a, b) => a - b);
   
     const newCourses: Course[] = extractedData
@@ -79,7 +75,6 @@ export default function Home() {
         const grade = item.grade.toUpperCase() as Grade;
         const validGrades: Grade[] = ['S', 'A', 'B', 'C', 'D', 'F'];
         
-        // Extract year from monthYear
         const yearMatch = item.monthYear.match(/\b(20\d{2})\b/);
         const actualYear = yearMatch ? parseInt(yearMatch[1]) : new Date().getFullYear();
         
@@ -89,7 +84,7 @@ export default function Home() {
           name: item.courseName,
           credits: 4,
           grade: validGrades.includes(grade) ? grade : 'NA',
-          year: actualYear, // Use actual year (2023, 2024, etc.)
+          year: actualYear,
         };
       });
   
@@ -135,7 +130,7 @@ export default function Home() {
   };
 
   return (
-    <main className="container mx-auto p-4 md:p-8 dark">
+    <main className="container mx-auto p-4 md:p-8">
       <Header />
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
         <div className="lg:col-span-1 flex flex-col gap-8">

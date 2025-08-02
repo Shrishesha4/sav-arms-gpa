@@ -37,7 +37,6 @@ export default function CourseManager({
     return acc;
   }, {} as Record<number, Course[]>);
 
-  // Sort years in descending order (most recent first)
   const years = Object.keys(coursesByYear).map(Number).sort((a, b) => b - a);
   
   const getYearStats = (yearCourses: Course[]) => {
@@ -49,11 +48,11 @@ export default function CourseManager({
     
     passedCourses.forEach(course => {
       const gradePoints: Record<Exclude<Grade, 'NA'>, number> = {
-        'S': 9.5,
-        'A': 8.5,
-        'B': 7.5,
-        'C': 6.5,
-        'D': 5.5,
+        'S': 10,
+        'A': 9,
+        'B': 8,
+        'C': 7,
+        'D': 6,
         'F': 0
       };
       
@@ -78,7 +77,6 @@ export default function CourseManager({
     const currentYear = new Date().getFullYear();
     const existingYears = years;
     
-    // Find next available year
     let newYear = currentYear;
     while (existingYears.includes(newYear)) {
       newYear++;
@@ -92,14 +90,14 @@ export default function CourseManager({
       <CardHeader>
         <CardTitle>Course & Grade Manager</CardTitle>
         <CardDescription>
-          Courses organized by actual academic years (2023, 2024, 2025, etc.)
+          Add, edit, or remove your courses below.
         </CardDescription>
       </CardHeader>
       <CardContent>
         {validCourses.length === 0 ? (
            <div className="text-center text-muted-foreground py-8">
             <p>Your courses will appear here.</p>
-            <p className="text-sm">Use one of the methods above to add your subjects.</p>
+            <p className="text-sm">Use one of the methods to the left to add your subjects.</p>
           </div>
         ) : (
         <Accordion type="multiple" defaultValue={years.map(y => `year-${y}`)} className="w-full">
@@ -109,10 +107,10 @@ export default function CourseManager({
             
             return (
               <AccordionItem value={`year-${year}`} key={year}>
-                <AccordionTrigger className="text-lg font-bold">
-                  <div className="flex justify-between items-center w-full pr-4">
-                    <span>Year {year}</span>
-                    <div className="flex gap-4 text-sm font-normal text-muted-foreground">
+                <AccordionTrigger>
+                  <div className="flex flex-col md:flex-row justify-between items-start md:items-center w-full pr-4 text-left">
+                    <span className="text-lg font-bold text-primary-foreground">Year {year}</span>
+                    <div className="flex gap-4 text-sm font-normal text-muted-foreground mt-1 md:mt-0">
                       <span>{stats.totalCourses} courses</span>
                       <span>GPA: {stats.gpa.toFixed(2)}</span>
                       <span>{stats.totalCredits} credits</span>
@@ -121,52 +119,63 @@ export default function CourseManager({
                 </AccordionTrigger>
                 <AccordionContent>
                   <div className="space-y-4">
-                    <div className="grid grid-cols-12 gap-2 text-sm font-medium text-muted-foreground px-2">
-                      <div className="col-span-3 md:col-span-2">Course Code</div>
-                      <div className="col-span-5 md:col-span-5">Course Name</div>
-                      <div className="col-span-2 md:col-span-2">Credits</div>
-                      <div className="col-span-2 md:col-span-2">Grade</div>
-                      <div className="col-span-0 md:col-span-1"></div>
+                    <div className="hidden md:grid grid-cols-12 gap-2 text-sm font-medium text-muted-foreground px-2">
+                      <div className="col-span-2">Course Code</div>
+                      <div className="col-span-5">Course Name</div>
+                      <div className="col-span-2 text-center">Credits</div>
+                      <div className="col-span-2 text-center">Grade</div>
+                      <div className="col-span-1"></div>
                     </div>
                     {yearCourses.map(course => (
-                      <div key={course.id} className="grid grid-cols-12 gap-2 items-center">
+                      <div key={course.id} className="grid grid-cols-1 md:grid-cols-12 gap-2 items-center p-2 rounded-md hover:bg-white/5">
+                        <div className='md:hidden text-xs text-muted-foreground'>Course Code</div>
                         <Input
                           placeholder="CS101"
                           value={course.code}
                           onChange={(e) => onUpdateCourse({ ...course, code: e.target.value })}
-                          className="col-span-3 md:col-span-2"
+                          className="md:col-span-2"
                         />
+                         <div className='md:hidden text-xs text-muted-foreground mt-2'>Course Name</div>
                         <Input
                           placeholder="Intro to Programming"
                           value={course.name}
                           onChange={(e) => onUpdateCourse({ ...course, name: e.target.value })}
-                          className="col-span-5"
+                          className="md:col-span-5"
                         />
-                        <Input
-                          type="number"
-                          placeholder="3"
-                          value={course.credits || ''}
-                          onChange={(e) => onUpdateCourse({ ...course, credits: Number(e.target.value) || 0 })}
-                          className="col-span-2"
-                        />
-                        <Select
-                          value={course.grade}
-                          onValueChange={(grade: Grade) => onUpdateCourse({ ...course, grade })}
-                        >
-                          <SelectTrigger className="col-span-2">
-                            <SelectValue placeholder="Grade" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {GRADES.map(g => (
-                              <SelectItem key={g} value={g}>{g}</SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <div className="grid grid-cols-2 md:col-span-4 gap-2">
+                          <div>
+                            <div className='md:hidden text-xs text-muted-foreground mt-2'>Credits</div>
+                            <Input
+                              type="number"
+                              placeholder="3"
+                              value={course.credits || ''}
+                              onChange={(e) => onUpdateCourse({ ...course, credits: Number(e.target.value) || 0 })}
+                              className="w-full text-center"
+                            />
+                          </div>
+                          <div>
+                            <div className='md:hidden text-xs text-muted-foreground mt-2'>Grade</div>
+                            <Select
+                              value={course.grade}
+                              onValueChange={(grade: Grade) => onUpdateCourse({ ...course, grade })}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue placeholder="Grade" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {GRADES.map(g => (
+                                  <SelectItem key={g} value={g}>{g}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </div>
+                        </div>
+
                         <Button
                           variant="ghost"
                           size="icon"
                           onClick={() => onRemoveCourse(course.id)}
-                          className="col-span-12 md:col-span-1 md:col-start-12"
+                          className="md:col-span-1 justify-self-end"
                           aria-label="Remove course"
                         >
                           <Trash2 className="h-4 w-4 text-destructive" />
