@@ -14,66 +14,80 @@ interface ResultsDashboardProps {
 
 export default function ResultsDashboard({ courses }: ResultsDashboardProps) {
 
-  const { overallCgpa, totalSubjects, totalCredits, totalFailedSubjects } = useMemo(() => {
-    const validCourses = courses.filter(c => c.grade !== 'NA' && c.credits > 0);
+  const { overallCgpa, totalSubjects, totalCredits, totalFailedSubjects, passedSubjects } = useMemo(() => {
+    // Filter out courses with no data
+    const validCourses = courses.filter(c => c.grade !== 'NA' && c.credits > 0 && (c.name || c.code));
+    
+    // Separate passed and failed courses
+    const passedCourses = validCourses.filter(c => c.grade !== 'F');
+    const failedCourses = validCourses.filter(c => c.grade === 'F');
     
     let totalScore = 0;
     let totalCreditsForCgpa = 0;
 
-    validCourses.forEach(course => {
+    // Only calculate CGPA based on PASSED courses (no history of arrears policy)
+    passedCourses.forEach(course => {
       totalScore += GRADE_POINTS[course.grade] * course.credits;
       totalCreditsForCgpa += course.credits;
     });
 
     const overallCgpa = totalCreditsForCgpa > 0 ? (totalScore / totalCreditsForCgpa) : 0;
-    const totalCreditsSum = courses.reduce((sum, c) => sum + (c.credits || 0), 0);
-    const failedSubjects = courses.filter(c => c.grade === 'F').length;
+    
+    // Total credits should also only count passed courses for the dashboard
+    const totalCreditsSum = passedCourses.reduce((sum, c) => sum + (c.credits || 0), 0);
     
     return {
       overallCgpa,
-      totalSubjects: courses.filter(c => c.name || c.code).length,
-      totalCredits: totalCreditsSum,
-      totalFailedSubjects: failedSubjects,
+      totalSubjects: validCourses.length, // Total subjects attempted
+      passedSubjects: passedCourses.length, // Subjects passed
+      totalCredits: totalCreditsSum, // Only credits from passed courses
+      totalFailedSubjects: failedCourses.length,
     };
   }, [courses]);
 
-  const percentage = overallCgpa * 10;
+  // Convert CGPA to percentage using the standard formula (CGPA × 9.5)
+  const percentage = overallCgpa * 9.5;
   
   const sortedCourses = useMemo(() => {
-    return [...courses].sort((a,b) => a.year - b.year || a.name.localeCompare(b.name));
+    return [...courses]
+      .filter(c => c.name || c.code) // Only show courses with data
+      .sort((a,b) => a.year - b.year || a.name.localeCompare(b.name));
   }, [courses]);
 
   return (
     <Card className="shadow-lg">
       <CardHeader>
         <CardTitle>Results Dashboard</CardTitle>
-        <CardDescription>Your real-time academic performance.</CardDescription>
+        <CardDescription>Your real-time academic performance (No History of Arrears)</CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
         <div>
           <h3 className="text-lg font-semibold text-primary">Overall CGPA</h3>
           <p className="text-5xl font-bold">{overallCgpa.toFixed(2)}</p>
           <p className="text-muted-foreground">Equivalent to {percentage.toFixed(2)}%</p>
-          <Progress value={overallCgpa * 10} className="mt-2 h-3" />
+          <Progress value={(overallCgpa / 10) * 100} className="mt-2 h-3" />
+          <p className="text-xs text-muted-foreground mt-1">
+            *Failed subjects excluded from CGPA calculation
+          </p>
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-center">
             <Card>
                 <CardHeader className="p-4">
-                    <CardTitle className="text-2xl md:text-3xl">{totalSubjects}</CardTitle>
-                    <CardDescription>Subjects</CardDescription>
+                    <CardTitle className="text-2xl md:text-3xl">{passedSubjects}</CardTitle>
+                    <CardDescription>Passed Subjects</CardDescription>
                 </CardHeader>
             </Card>
             <Card>
                 <CardHeader className="p-4">
                     <CardTitle className="text-2xl md:text-3xl">{totalCredits}</CardTitle>
-                    <CardDescription>Credits</CardDescription>
+                    <CardDescription>Credits Earned</CardDescription>
                 </CardHeader>
             </Card>
             <Card>
                 <CardHeader className="p-4">
                     <CardTitle className="text-2xl md:text-3xl text-destructive">{totalFailedSubjects}</CardTitle>
-                    <CardDescription>Failed</CardDescription>
+                    <CardDescription>Failed (Excluded)</CardDescription>
                 </CardHeader>
             </Card>
         </div>
@@ -88,6 +102,7 @@ export default function ResultsDashboard({ courses }: ResultsDashboardProps) {
                                 <p className="font-medium text-sm">{course.name || <span className="text-muted-foreground">No Name</span>}</p>
                                 <p className="text-xs text-muted-foreground">
                                     {course.code || 'N/A'} &bull; {course.credits} Credits &bull; Year {course.year}
+                                    {course.grade === 'F' && <span className="text-destructive"> &bull; Not counted in CGPA</span>}
                                 </p>
                             </div>
                             <Badge 
