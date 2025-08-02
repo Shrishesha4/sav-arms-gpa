@@ -1,3 +1,4 @@
+
 import { NextResponse } from 'next/server';
 import * as cheerio from 'cheerio';
 import { ScrapedCourse } from './types';
@@ -62,7 +63,7 @@ export async function POST(request: Request) {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Cookie': initialCookie,
                 'Referer': loginUrl,
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
             },
             body: loginFormData.toString(),
             redirect: 'manual' // We'll handle the redirect manually
@@ -83,7 +84,7 @@ export async function POST(request: Request) {
             headers: {
                 'Cookie': sessionCookie,
                 'Referer': dashboardUrl,
-                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
             }
         });
 
