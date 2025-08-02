@@ -3,7 +3,7 @@ import * as cheerio from 'cheerio';
 import { ScrapedCourse } from './types';
 
 async function getLoginTokens(cookie?: string): Promise<{ viewState: string | undefined, eventValidation: string | undefined, cookie: string | undefined }> {
-    const loginUrl = 'https://arms.sse.saveetha.com/StudentPortal/Login.aspx';
+    const loginUrl = 'https://arms.sse.saveetha.com/Login.aspx';
     const res = await fetch(loginUrl, {
         headers: {
             'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7',
@@ -37,8 +37,8 @@ export async function POST(request: Request) {
             return NextResponse.json({ error: 'Username and password are required' }, { status: 400 });
         }
 
-        const loginUrl = 'https://arms.sse.saveetha.com/StudentPortal/Login.aspx';
-        const dashboardUrl = 'https://arms.sse.saveetha.com/StudentPortal/DashBoard.aspx';
+        const loginUrl = 'https://arms.sse.saveetha.com/Login.aspx';
+        const dashboardUrl = 'https://arms.sse.saveetha.com/StudentPortal/Landing.aspx';
         const myCourseUrl = 'https://arms.sse.saveetha.com/StudentPortal/MyCourse.aspx';
 
         // Step 1: Initial request to get session cookie and tokens
