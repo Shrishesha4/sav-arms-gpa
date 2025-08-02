@@ -31,10 +31,6 @@ export default function CourseManager({
   }, {} as Record<number, Course[]>);
 
   const years = Object.keys(coursesByYear).map(Number).sort((a, b) => a - b);
-  if (years.length === 0) {
-      years.push(1);
-      coursesByYear[1] = [];
-  }
   
   return (
     <Card>
@@ -45,6 +41,12 @@ export default function CourseManager({
         </CardDescription>
       </CardHeader>
       <CardContent>
+        {courses.length === 0 ? (
+           <div className="text-center text-muted-foreground py-8">
+            <p>Your courses will appear here.</p>
+            <p className="text-sm">Use one of the methods above to add your subjects.</p>
+          </div>
+        ) : (
         <Accordion type="multiple" defaultValue={years.map(y => `year-${y}`)} className="w-full">
           {years.map(year => (
             <AccordionItem value={`year-${year}`} key={year}>
@@ -112,6 +114,7 @@ export default function CourseManager({
             </AccordionItem>
           ))}
         </Accordion>
+        )}
         <Button onClick={onAddYear} className="mt-6 w-full">
             <PlusCircle className="mr-2 h-4 w-4" />
             Add New Academic Year
