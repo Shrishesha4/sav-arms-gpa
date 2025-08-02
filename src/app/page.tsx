@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import type { Course, Grade } from '@/types';
 import { extractGradesFromTranscript, type ExtractGradesFromTranscriptOutput } from '@/ai/flows/extract-grades-from-transcript';
 import Header from '@/components/Header';
@@ -10,9 +10,11 @@ import ResultsDashboard from '@/components/ResultsDashboard';
 import PortalLogin from '@/components/PortalLogin';
 import { useToast } from '@/hooks/use-toast';
 import type { ScrapedCourse } from './api/scrape/types';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Globe, Upload } from 'lucide-react';
+import { Skeleton } from '@/components/ui/skeleton';
+
 
 let courseIdCounter = 0;
 const generateId = () => `course-${Date.now()}-${courseIdCounter++}`;
@@ -20,8 +22,14 @@ const generateId = () => `course-${Date.now()}-${courseIdCounter++}`;
 
 export default function Home() {
   const [courses, setCourses] = useState<Course[]>([]);
+  const [isClient, setIsClient] = useState(false);
   const { toast } = useToast();
   
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
+
   const handleAiExtraction = (extractedData: ExtractGradesFromTranscriptOutput) => {
     const newCourses: Course[] = extractedData.map(item => {
       const grade = item.grade.toUpperCase() as Grade;
@@ -135,14 +143,9 @@ export default function Home() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
         <div className="lg:col-span-1 flex flex-col gap-8">
           <Card>
-            <CardHeader>
-              <CardTitle>Add Your Courses</CardTitle>
-              <CardDescription>
-                Import your academic data using one of the methods below
-              </CardDescription>
-            </CardHeader>
             <CardContent>
-              <Tabs defaultValue="portal" className="w-full">
+             {isClient ? (
+              <Tabs defaultValue="portal" className="w-full mt-6">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="portal">
                     <Globe className="h-4 w-4 md:mr-2" />
@@ -162,6 +165,13 @@ export default function Home() {
                   <TranscriptUploader onExtraction={handleAiExtraction} />
                 </TabsContent>
               </Tabs>
+              ) : (
+                <div className="mt-6 space-y-4">
+                  <Skeleton className="h-10 w-full" />
+                  <Skeleton className="h-24 w-full" />
+                  <Skeleton className="h-10 w-full" />
+                </div>
+              )}
             </CardContent>
           </Card>
           <ResultsDashboard courses={courses} />

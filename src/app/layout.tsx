@@ -4,7 +4,7 @@ import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
   title: 'ARMS GPA',
-  description: 'An intelligent CGPA calculator with AI-powered grade extraction.',
+  description: 'An intelligent GPA calculator with AI-powered grade extraction.',
 };
 
 export default function RootLayout({
