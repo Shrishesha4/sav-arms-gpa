@@ -6,14 +6,15 @@ async function getLoginTokens(cookie?: string): Promise<{ viewState: string | un
     const loginUrl = 'https://arms.sse.saveetha.com/StudentPortal/Login.aspx';
     const res = await fetch(loginUrl, {
         headers: {
-            'Cookie': cookie || ''
+            'Cookie': cookie || '',
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
         }
     });
     const html = await res.text();
     const $ = cheerio.load(html);
     const viewState = $('input[name="__VIEWSTATE"]').val();
     const eventValidation = $('input[name="__EVENTVALIDATION"]').val();
-    const newCookie = res.headers.get('set-cookie') || cookie;
+    const newCookie = res.headers.get('set-cookie')?.split(';')[0] || cookie;
     return { viewState, eventValidation, cookie: newCookie };
 }
 
@@ -50,17 +51,18 @@ export async function POST(request: Request) {
                 'Content-Type': 'application/x-www-form-urlencoded',
                 'Cookie': initialCookie,
                 'Referer': loginUrl,
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
             },
             body: loginFormData.toString(),
-            redirect: 'follow' // Follow redirects to get the final cookie
+            redirect: 'manual' // We'll handle the redirect manually
         });
 
-        // The final URL after redirects should be the dashboard
-        if (!loginRes.url.includes('DashBoard.aspx')) {
+        // The site redirects on successful login. We need to capture the new location and the cookie.
+        if (loginRes.status !== 302) {
              return NextResponse.json({ error: 'Invalid credentials or login failed. Please double-check your username and password.' }, { status: 401 });
         }
         
-        const sessionCookie = loginRes.headers.get('set-cookie') || initialCookie;
+        const sessionCookie = loginRes.headers.get('set-cookie')?.split(';')[0] || initialCookie;
         if (!sessionCookie) {
             return NextResponse.json({ error: 'Failed to establish a session after login.' }, { status: 500 });
         }
@@ -69,7 +71,8 @@ export async function POST(request: Request) {
         const myCourseRes = await fetch(myCourseUrl, {
             headers: {
                 'Cookie': sessionCookie,
-                'Referer': dashboardUrl
+                'Referer': dashboardUrl,
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/109.0.0.0 Safari/537.36',
             }
         });
 
