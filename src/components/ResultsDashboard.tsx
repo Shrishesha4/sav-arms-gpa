@@ -21,18 +21,21 @@ interface YearStats {
 export default function ResultsDashboard({ courses }: ResultsDashboardProps) {
 
   const { overallCgpa, yearWiseStats, totalSubjects, totalCredits, totalFailedSubjects } = useMemo(() => {
-    const passedCourses = courses.filter(c => c.grade !== 'F' && c.grade !== 'NA' && c.credits > 0);
+    // All courses with a valid grade and credits > 0
+    const validCourses = courses.filter(c => c.grade !== 'NA' && c.credits > 0);
+    const passedCourses = validCourses.filter(c => c.grade !== 'F');
     
     let totalScore = 0;
-    let totalPassedCredits = 0;
+    let totalCreditsForCgpa = 0;
 
-    passedCourses.forEach(course => {
+    validCourses.forEach(course => {
       totalScore += GRADE_POINTS[course.grade] * course.credits;
-      totalPassedCredits += course.credits;
+      totalCreditsForCgpa += course.credits;
     });
 
-    const overallCgpa = totalPassedCredits > 0 ? (totalScore / totalPassedCredits) : 0;
-    
+    const overallCgpa = totalCreditsForCgpa > 0 ? (totalScore / totalCreditsForCgpa) : 0;
+    const totalCredits = courses.reduce((sum, c) => sum + c.credits, 0);
+
     const coursesByYear = courses.reduce((acc, course) => {
         (acc[course.year] = acc[course.year] || []).push(course);
         return acc;
@@ -40,22 +43,22 @@ export default function ResultsDashboard({ courses }: ResultsDashboardProps) {
 
     const yearWiseStats: YearStats[] = Object.entries(coursesByYear).map(([yearStr, yearCourses]) => {
         const year = Number(yearStr);
-        const passedYearCourses = yearCourses.filter(c => c.grade !== 'F' && c.grade !== 'NA' && c.credits > 0);
-
-        let yearScore = 0;
-        let yearPassedCredits = 0;
-        let yearTotalCredits = 0;
-
-        yearCourses.forEach(c => yearTotalCredits += c.credits);
+        const validYearCourses = yearCourses.filter(c => c.grade !== 'NA' && c.credits > 0);
         
-        passedYearCourses.forEach(c => {
+        let yearScore = 0;
+        let yearTotalCreditsForGpa = 0;
+
+        validYearCourses.forEach(c => {
             yearScore += GRADE_POINTS[c.grade] * c.credits;
-            yearPassedCredits += c.credits;
+            yearTotalCreditsForGpa += c.credits;
         });
+
+        const yearTotalCredits = yearCourses.reduce((sum, c) => sum + c.credits, 0);
+        const yearPassedCredits = yearCourses.filter(c => c.grade !== 'F' && c.grade !== 'NA').reduce((sum, c) => sum + c.credits, 0);
 
         return {
             year,
-            gpa: yearPassedCredits > 0 ? (yearScore / yearPassedCredits) : 0,
+            gpa: yearTotalCreditsForGpa > 0 ? (yearScore / yearTotalCreditsForGpa) : 0,
             totalCredits: yearTotalCredits,
             passedCredits: yearPassedCredits,
             failedSubjects: yearCourses.filter(c => c.grade === 'F').length
@@ -66,13 +69,13 @@ export default function ResultsDashboard({ courses }: ResultsDashboardProps) {
     return {
       overallCgpa,
       yearWiseStats,
-      totalSubjects: courses.length,
-      totalCredits: courses.reduce((sum, c) => sum + c.credits, 0),
+      totalSubjects: courses.filter(c => c.name || c.code).length,
+      totalCredits,
       totalFailedSubjects: courses.filter(c => c.grade === 'F').length,
     };
   }, [courses]);
 
-  const percentage = overallCgpa * 9.5;
+  const percentage = overallCgpa * 10;
 
   return (
     <Card className="shadow-lg">
