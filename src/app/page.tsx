@@ -9,7 +9,7 @@ import CourseManager from '@/components/CourseManager';
 import ResultsDashboard from '@/components/ResultsDashboard';
 import PortalLogin from '@/components/PortalLogin';
 import { useToast } from '@/hooks/use-toast';
-import type { ScrapedCourse } from './api/scrape/route';
+import type { ScrapedCourse } from './api/scrape/types';
 
 export default function Home() {
   const [courses, setCourses] = useState<Course[]>([]);
