@@ -145,12 +145,12 @@ export default function Home() {
               <Tabs defaultValue="portal" className="w-full">
                 <TabsList className="grid w-full grid-cols-2">
                   <TabsTrigger value="portal">
-                    <Globe className="mr-2 h-4 w-4" />
-                    Portal Login
+                    <Globe className="h-4 w-4 md:mr-2" />
+                    <span className="hidden md:inline">Portal Login</span>
                   </TabsTrigger>
                   <TabsTrigger value="upload">
-                    <Upload className="mr-2 h-4 w-4" />
-                    Upload Screenshot
+                    <Upload className="h-4 w-4 md:mr-2" />
+                    <span className="hidden md:inline">Upload Screenshot</span>
                   </TabsTrigger>
                 </TabsList>
                 
