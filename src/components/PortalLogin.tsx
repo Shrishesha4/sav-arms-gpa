@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Loader2, AlertCircle } from "lucide-react";
 import { useToast } from '@/hooks/use-toast';
 import { Alert, AlertDescription, AlertTitle } from './ui/alert';
-import type { ScrapedCourse } from '@/app/api/scrape/route';
+import type { ScrapedCourse } from '@/app/api/scrape/types';
 
 interface PortalLoginProps {
     onExtraction: (data: ScrapedCourse[]) => void;
@@ -65,7 +65,7 @@ export default function PortalLogin({ onExtraction }: PortalLoginProps) {
     return (
         <div className="space-y-4">
             <div className="space-y-2">
-                <Label htmlFor="username">Username</Label>
+                <Label htmlFor="username" className="text-primary-foreground/80">Username</Label>
                 <Input 
                     id="username" 
                     placeholder="Your ARMS username" 
@@ -74,7 +74,7 @@ export default function PortalLogin({ onExtraction }: PortalLoginProps) {
                 />
             </div>
             <div className="space-y-2">
-                <Label htmlFor="password">Password</Label>
+                <Label htmlFor="password" className="text-primary-foreground/80">Password</Label>
                 <Input 
                     id="password" 
                     type="password" 
