@@ -12,7 +12,7 @@ ARMS GPA is a modern web application designed to help students calculate their C
 
 - **🌐 Portal Integration**: Direct login to Saveetha ARMS portal to automatically fetch course data
 - **🤖 AI-Powered Grade Extraction**: Upload transcript screenshots and leverage Gemini AI to automatically extract course codes, names, grades, and credits
-- **📊 Real-Time CGPA Calculation**: Automatic calculation based on the standard grade scale (S=9.5, A=8.5, B=7.5, C=6.5, D=5.5, F=0)
+- **📊 Real-Time CGPA Calculation**: Automatic calculation based on the standard grade scale (S: 9.5, A: 8.5, B: 7.5, C: 6.5, D: 5.5, F: 0)
 - **📈 Statistics Dashboard**: Comprehensive overview showing overall CGPA, total credits, subjects count, and failed subjects
 - **✏️ Manual Data Entry**: Interactive course management with add, edit, and delete capabilities
 - **📱 Responsive Design**: Fully responsive interface that works seamlessly on desktops, tablets, and smartphones
@@ -117,6 +117,8 @@ npm run dev
 
 5. Open [http://localhost:9002](http://localhost:9002) in your browser
 
+> **Note**: The application runs on port 9002 by default (configured in package.json). You can change the port by modifying the `dev` script or using the `-p` flag: `next dev -p <port>`
+
 ### Development Commands
 
 - `npm run dev` - Start development server on port 9002 with Turbopack
@@ -191,7 +193,7 @@ firebase login
 firebase deploy
 ```
 
-Configuration is managed in `apphosting.yaml` with a maximum of 1 instance by default.
+Configuration is managed in `apphosting.yaml` with a maximum of 1 instance by default. You can increase the `maxInstances` value in the configuration file to allow automatic scaling for higher traffic.
 
 ## Contributing
 
